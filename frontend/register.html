@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Shop - When Fresh</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .bg-swedish-blue {
+            background-color: #005B99;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+    <div class="max-w-md w-full mx-4">
+        <div class="text-center mb-8">
+            <a href="/" class="inline-flex items-center space-x-2">
+                <div class="w-12 h-12 bg-swedish-blue rounded-full flex items-center justify-center">
+                    <span class="text-white font-bold text-2xl">WF</span>
+                </div>
+            </a>
+            <h2 class="mt-4 text-3xl font-bold text-gray-900">Register Your Shop</h2>
+            <p class="mt-2 text-gray-600">Join When Fresh and showcase your fresh baked goods</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-8">
+            <form id="registerForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Shop Name</label>
+                    <input type="text" name="name" required
+                           class="mt-1 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" name="email" required
+                           class="mt-1 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" name="password" required
+                           class="mt-1 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Location</label>
+                    <div class="mt-1 grid grid-cols-2 gap-4">
+                        <input type="text" name="latitude" placeholder="Latitude"
+                               class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <input type="text" name="longitude" placeholder="Longitude"
+                               class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    </div>
+                    <button type="button" id="getLocationBtn" 
+                            class="mt-2 text-sm text-swedish-blue hover:underline">
+                        Get Current Location
+                    </button>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Address</label>
+                    <textarea name="address" rows="2" required
+                            class="mt-1 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Contact Number</label>
+                    <input type="tel" name="contact_info" required
+                           class="mt-1 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+
+                <button type="submit" 
+                        class="w-full bg-swedish-blue text-white py-3 rounded-lg hover:bg-blue-700 transition">
+                    Register Shop
+                </button>
+            </form>
+
+            <p class="mt-6 text-center text-sm text-gray-600">
+                Already have an account? 
+                <a href="./index.html" class="text-swedish-blue hover:underline">Login here</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+   // Updated API configuration
+   const config = {
+        API_BASE_URL: 'http://localhost/whenfresh/api',
+        HEADERS: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+        }
+    };
+
+    class ApiService {
+        static async register(data) {
+            try {
+                const response = await fetch(`${config.API_BASE_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: config.HEADERS,
+                    body: JSON.stringify(data),
+                    mode: 'cors' // Enable CORS
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Registration failed');
+                }
+
+                return await response.json();
+            } catch (error) {
+                throw error;
+            }
+        }
+    }
+
+    class UI {
+        static showLoading() {
+            const submitBtn = document.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Registering...
+            `;
+        }
+
+        static hideLoading() {
+            const submitBtn = document.querySelector('button[type="submit"]');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Register Shop';
+        }
+
+        static showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4';
+            errorDiv.innerHTML = `
+                <span class="block sm:inline">${message}</span>
+                <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                    <svg class="fill-current h-6 w-6 text-red-500 cursor-pointer" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <title>Close</title>
+                        <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
+                    </svg>
+                </span>
+            `;
+            
+            const form = document.getElementById('registerForm');
+            form.insertBefore(errorDiv, form.firstChild);
+
+            // Add click event to close button
+            errorDiv.querySelector('svg').addEventListener('click', () => errorDiv.remove());
+
+            // Auto remove after 5 seconds
+            setTimeout(() => errorDiv.remove(), 5000);
+        }
+
+        static showSuccess(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4';
+            successDiv.textContent = message;
+            
+            const form = document.getElementById('registerForm');
+            form.insertBefore(successDiv, form.firstChild);
+            
+            setTimeout(() => successDiv.remove(), 3000);
+        }
+    }
+
+    // Handle form submission
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        try {
+            UI.showLoading();
+
+            const formData = new FormData(e.target);
+            const shopData = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                password: formData.get('password'),
+                location: `${formData.get('latitude')},${formData.get('longitude')}`,
+                address: formData.get('address'),
+                contact_info: formData.get('contact_info')
+            };
+
+            // Validate data before sending
+            if (!validateFormData(shopData)) {
+                UI.hideLoading();
+                return;
+            }
+
+            const response = await ApiService.register(shopData);
+
+            UI.hideLoading();
+
+            if (response.data) {
+                // Store auth data
+                localStorage.setItem('token', response.data.token);
+                localStorage.setItem('user', JSON.stringify(response.data.user));
+                
+                UI.showSuccess('Registration successful! Redirecting...');
+                
+                // Redirect after a short delay
+                setTimeout(() => {
+                    window.location.href = './dashboard.html';
+                }, 1500);
+            }
+        } catch (error) {
+            UI.hideLoading();
+            console.error('Registration error:', error);
+            UI.showError(error.message || 'Registration failed. Please try again.');
+        }
+    });
+
+    // Form validation
+    function validateFormData(data) {
+        const errors = [];
+
+        if (!data.name?.trim()) {
+            errors.push('Shop name is required');
+        }
+
+        if (!data.email?.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+            errors.push('Valid email is required');
+        }
+
+        if (!data.password || data.password.length < 6) {
+            errors.push('Password must be at least 6 characters');
+        }
+
+        if (!data.location?.match(/^-?\d+\.?\d*,-?\d+\.?\d*$/)) {
+            errors.push('Valid location is required');
+        }
+
+        if (!data.address?.trim()) {
+            errors.push('Address is required');
+        }
+
+        if (!data.contact_info?.trim()) {
+            errors.push('Contact information is required');
+        }
+
+        if (errors.length > 0) {
+            UI.showError(errors.join('<br>'));
+            return false;
+        }
+
+        return true;
+    }
+
+    // Get location handler
+    document.getElementById('getLocationBtn').addEventListener('click', () => {
+        if (navigator.geolocation) {
+            UI.showLoading();
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    document.getElementsByName('latitude')[0].value = position.coords.latitude;
+                    document.getElementsByName('longitude')[0].value = position.coords.longitude;
+                    UI.hideLoading();
+                    UI.showSuccess('Location updated successfully');
+                },
+                error => {
+                    UI.hideLoading();
+                    UI.showError('Failed to get location: ' + error.message);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                    maximumAge: 0
+                }
+            );
+        } else {
+            UI.showError('Geolocation is not supported by your browser');
+        }
+    });
+    </script>
+</body>
+</html>

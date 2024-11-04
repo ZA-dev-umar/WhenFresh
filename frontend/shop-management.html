@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Management - When Fresh</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .bg-swedish-blue {
+            background-color: #005B99;
+        }
+        .text-swedish-blue {
+            color: #005B99;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <a href="./dashboard.html" class="flex items-center space-x-2">
+                        <div class="w-10 h-10 bg-swedish-blue rounded-full flex items-center justify-center">
+                            <span class="text-white font-bold text-xl">WF</span>
+                        </div>
+                    </a>
+                    <span class="text-xl font-semibold text-gray-800" id="shopName">Shop Management</span>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <a href="./dashboard.html" class="text-gray-600 hover:text-swedish-blue">Dashboard</a>
+                    <button id="logoutBtn" class="text-gray-600 hover:text-swedish-blue transition">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Shop Details Card -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h2 id="shopDetailName" class="text-2xl font-bold text-gray-800 mb-2"></h2>
+                    <p id="shopAddress" class="text-gray-600"></p>
+                    <p id="shopContact" class="text-gray-600 mt-1"></p>
+                </div>
+                <button id="editShopBtn" class="bg-swedish-blue text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                    Edit Shop
+                </button>
+            </div>
+        </div>
+
+        <!-- Items Management -->
+        <div class="bg-white rounded-lg shadow-lg">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xl font-semibold text-gray-800">Manage Items</h2>
+                    <button id="addItemBtn" class="bg-swedish-blue text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                        Add New Item
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-6">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead>
+                            <tr>
+                                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Item Name
+                                </th>
+                                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Prep Time
+                                </th>
+                                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Duration
+                                </th>
+                                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status
+                                </th>
+                                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemsTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Items will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Shop Modal -->
+    <div id="editShopModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Edit Shop</h2>
+                <button id="closeEditShopModal" class="text-gray-500 hover:text-gray-700">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <form id="editShopForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Shop Name</label>
+                    <input type="text" name="name" required
+                           class="mt-1 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Location</label>
+                    <div class="mt-1 grid grid-cols-2 gap-4">
+                        <input type="text" name="latitude" placeholder="Latitude"
+                               class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <input type="text" name="longitude" placeholder="Longitude"
+                               class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    </div>
+                    <button type="button" id="getLocationBtnEdit" 
+                            class="mt-2 text-sm text-swedish-blue hover:underline">
+                        Get Current Location
+                    </button>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Address</label>
+                    <textarea name="address" rows="2" required
+                            class="mt-1 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Contact Number</label>
+                    <input type="tel" name="contact_info" required
+                           class="mt-1 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+                <button type="submit" 
+                        class="w-full bg-swedish-blue text-white py-3 rounded-lg hover:bg-blue-700 transition">
+                    Save Changes
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Item Modal -->
+    <div id="addItemModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Add New Item</h2>
+                <button id="closeAddItemModal" class="text-gray-500 hover:text-gray-700">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <form id="addItemForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Item Name</label>
+                    <input type="text" name="item_name" required
+                           class="mt-1 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Preparation Time</label>
+                    <input type="time" name="prep_start_time" required
+                           class="mt-1 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Duration (minutes)</label>
+                    <input type="number" name="prep_duration" required min="1"
+                           class="mt-1 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+                <button type="submit" 
+                        class="w-full bg-swedish-blue text-white py-3 rounded-lg hover:bg-blue-700 transition">
+                    Add Item
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = 'http://localhost/whenfresh/api';
+        let currentShopId = null;
+
+        // DOM Elements
+        const shopName = document.getElementById('shopName');
+        const shopDetailName = document.getElementById('shopDetailName');
+        const shopAddress = document.getElementById('shopAddress');
+        const shopContact = document.getElementById('shopContact');
+        const itemsTableBody = document.getElementById('itemsTableBody');
+
+        // Get shop ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        currentShopId = urlParams.get('id');
+
+        // Check Authentication
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = './login.html';
+                return;
+            }
+
+            if (!currentShopId) {
+                window.location.href = './dashboard.html';
+                return;
+            }
+
+            loadShopDetails();
+            loadItems();
+        });
+
+        // Load Shop Details
+        async function loadShopDetails() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/shops/${currentShopId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    const shop = data.data;
+                    shopName.textContent = shop.name;
+                    shopDetailName.textContent = shop.name;
+                    shopAddress.textContent = shop.address;
+                    shopContact.textContent = shop.contact_info;
+                } else {
+                    showNotification(data.message || 'Failed to load shop details', 'error');
+                }
+            } catch (error) {
+                showNotification('Failed to load shop details', 'error');
+            }
+        }
+
+        // Load Items
+        async function loadItems() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/shops/${currentShopId}/items`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    renderItems(data.data);
+                } else {
+                    showNotification(data.message || 'Failed to load items', 'error');
+                }
+            } catch (error) {
+                showNotification('Failed to load items', 'error');
+            }
+        }
+
+        // Render Items
+        function renderItems(items) {
+            itemsTableBody.innerHTML = '';
+            
+            items.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${item.item_name}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500">${formatTime(item.prep_start_time)}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500">${item.prep_duration} mins</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(item.status)}">
+                            ${item.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onclick="editItem(${item.item_id})" class="text-swedish-blue hover:text-blue-700 mr-3">
+                            Edit
+                        </button>
+                        <button onclick="deleteItem(${item.item_id})" class="text-red-600 hover:text-red-700">
+                            Delete
+                        </button>
+                    </td>
+                `;
+                itemsTableBody.appendChild(row);
+            });
+        }
+
+        // Utility Functions
+        function formatTime(time) {
+            return new Date(`2000-01-01T${time}`).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function getStatusClass(status) {
+            switch (status) {
+                case 'Fresh':
+                    return 'bg-green-100 text-green-800';
+                case 'Upcoming':
+                    return 'bg-blue-100 text-blue-800';
+                default:
+                    return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg ${
+                type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white z-50`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        // Modal Management
+        const editShopModal = document.getElementById('editShopModal');
+        const addItemModal = document.getElementById('addItemModal');
+        const editShopBtn = document.getElementById('editShopBtn');
+        const addItemBtn = document.getElementById('addItemBtn');
+        const closeEditShopModal = document.getElementById('closeEditShopModal');
+        const closeAddItemModal = document.getElementById('closeAddItemModal');
+        const editShopForm = document.getElementById('editShopForm');
+        const addItemForm = document.getElementById('addItemForm');
+        const getLocationBtnEdit = document.getElementById('getLocationBtnEdit');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        // Event Listeners
+        editShopBtn.addEventListener('click', () => {
+            loadShopDetailsForEdit();
+            editShopModal.classList.remove('hidden');
+        });
+
+        addItemBtn.addEventListener('click', () => {
+            addItemModal.classList.remove('hidden');
+        });
+
+        closeEditShopModal.addEventListener('click', () => {
+            editShopModal.classList.add('hidden');
+        });
+
+        closeAddItemModal.addEventListener('click', () => {
+            addItemModal.classList.add('hidden');
+            addItemForm.reset();
+        });
+
+        getLocationBtnEdit.addEventListener('click', () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    editShopForm.elements['latitude'].value = position.coords.latitude;
+                    editShopForm.elements['longitude'].value = position.coords.longitude;
+                });
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = './index.html';
+        });
+
+        // Form Submissions
+        editShopForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            const shopData = {
+                name: formData.get('name'),
+                location: `${formData.get('latitude')},${formData.get('longitude')}`,
+                address: formData.get('address'),
+                contact_info: formData.get('contact_info')
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/shops/${currentShopId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify(shopData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showNotification('Shop updated successfully');
+                    editShopModal.classList.add('hidden');
+                    loadShopDetails();
+                } else {
+                    showNotification(data.message || 'Failed to update shop', 'error');
+                }
+            } catch (error) {
+                showNotification('Failed to update shop', 'error');
+            }
+        });
+
+        addItemForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            const itemData = {
+                shop_id: currentShopId,
+                item_name: formData.get('item_name'),
+                prep_start_time: formData.get('prep_start_time'),
+                prep_duration: parseInt(formData.get('prep_duration'))
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/items`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify(itemData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showNotification('Item added successfully');
+                    addItemModal.classList.add('hidden');
+                    addItemForm.reset();
+                    loadItems();
+                } else {
+                    showNotification(data.message || 'Failed to add item', 'error');
+                }
+            } catch (error) {
+                showNotification('Failed to add item', 'error');
+            }
+        });
+
+        // Item Management Functions
+        async function loadShopDetailsForEdit() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/shops/${currentShopId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    const shop = data.data;
+                    const [lat, lng] = shop.location.split(',');
+                    
+                    const form = editShopForm;
+                    form.elements['name'].value = shop.name;
+                    form.elements['latitude'].value = lat;
+                    form.elements['longitude'].value = lng;
+                    form.elements['address'].value = shop.address;
+                    form.elements['contact_info'].value = shop.contact_info;
+                }
+            } catch (error) {
+                showNotification('Failed to load shop details', 'error');
+            }
+        }
+
+        async function editItem(itemId) {
+            // Implementation will be added for item editing
+            showNotification('Item editing coming soon');
+        }
+
+        async function deleteItem(itemId) {
+            if (confirm('Are you sure you want to delete this item?')) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/items/${itemId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        showNotification('Item deleted successfully');
+                        loadItems();
+                    } else {
+                        const data = await response.json();
+                        showNotification(data.message || 'Failed to delete item', 'error');
+                    }
+                } catch (error) {
+                    showNotification('Failed to delete item', 'error');
+                }
+            }
+        }
+
+        // Start real-time updates
+        setInterval(loadItems, 60000); // Refresh items every minute
+    </script>
+</body>
+</html>
