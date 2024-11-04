@@ -1,5 +1,4 @@
 // Configuration
-const API_BASE_URL = 'http://localhost/whenfresh/api';
 let map;
 let markers = [];
 
@@ -47,7 +46,7 @@ function initializeMap() {
 // API Functions
 async function fetchNearbyShops() {
     try {
-        const response = await fetch(`${API_BASE_URL}/shops/nearby?lat=40.7128&lng=-74.0060&radius=5`);
+        const response = await fetch(`${config.API_BASE_URL}/shops/nearby?lat=40.7128&lng=-74.0060&radius=5`);
         const shops = await response.json();
         
         shops.forEach(shop => {
@@ -61,7 +60,7 @@ async function fetchNearbyShops() {
 
 async function fetchShopItems(shopId) {
     try {
-        const response = await fetch(`${API_BASE_URL}/shops/${shopId}/items`);
+        const response = await fetch(`${config.API_BASE_URL}/shops/${shopId}/items`);
         const items = await response.json();
         items.forEach(item => addProductCard(item));
     } catch (error) {
@@ -178,7 +177,7 @@ async function handleLogin(e) {
     const password = loginForm.querySelector('input[type="password"]').value;
 
     try {
-        const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        const response = await fetch(`${config.API_BASE_URL}/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

@@ -1,53 +1,54 @@
-// js/api.js
 class API {
     static async request(endpoint, options = {}) {
         const token = Auth.getToken();
-        const headers = {
-            'Content-Type': 'application/json',
-            ...(token && { 'Authorization': `Bearer ${token}` }),
-            ...options.headers
-        };
-
+        
         try {
-            const response = await fetch(`${config.API_BASE_URL}${endpoint}`, {
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
                 ...options,
-                headers
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token && { 'Authorization': `Bearer ${token}` }),
+                    ...options.headers
+                }
             });
+
             const data = await response.json();
-            
-            if (response.ok) {
-                return { success: true, data };
-            }
-            return { success: false, error: data.error };
+            return {
+                success: response.ok,
+                data: data.data,
+                message: data.message,
+                status: response.status
+            };
         } catch (error) {
-            return { success: false, error: 'Request failed' };
+            console.error('API Error:', error);
+            return {
+                success: false,
+                message: 'Network error occurred',
+                status: 500
+            };
         }
     }
 
-    static getNearbyShops(lat, lng, radius = 5) {
-        return this.request(`/shops/nearby?lat=${lat}&lng=${lng}&radius=${radius}`);
+    static get(endpoint) {
+        return this.request(endpoint);
     }
 
-    static getShopItems(shopId) {
-        return this.request(`/shops/${shopId}/items`);
-    }
-
-    static createItem(itemData) {
-        return this.request('/items', {
+    static post(endpoint, data) {
+        return this.request(endpoint, {
             method: 'POST',
-            body: JSON.stringify(itemData)
+            body: JSON.stringify(data)
         });
     }
 
-    static updateItem(itemId, itemData) {
-        return this.request(`/items/${itemId}`, {
+    static put(endpoint, data) {
+        return this.request(endpoint, {
             method: 'PUT',
-            body: JSON.stringify(itemData)
+            body: JSON.stringify(data)
         });
     }
 
-    static deleteItem(itemId) {
-        return this.request(`/items/${itemId}`, {
+    static delete(endpoint) {
+        return this.request(endpoint, {
             method: 'DELETE'
         });
     }

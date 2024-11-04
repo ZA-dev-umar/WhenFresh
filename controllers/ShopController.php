@@ -68,16 +68,15 @@ class ShopController {
     // Get all shops (public endpoint)
     public function getAll() {
         try {
-            $result = $this->shop->readAll();
-            $shops = [];
-
-            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                array_push($shops, $row);
-            }
-
-            Response::json(200, $shops);
+            $owner_id = $_REQUEST['user']['id']; // Get from token
+            $shops = $this->shop->getShopsByOwner($owner_id);
+            
+            Response::success(200, [
+                'message' => 'Shops retrieved successfully',
+                'data' => $shops
+            ]);
         } catch (Exception $e) {
-            Response::json(500, ['error' => 'Failed to get shops: ' . $e->getMessage()]);
+            Response::error(500, $e->getMessage());
         }
     }
 

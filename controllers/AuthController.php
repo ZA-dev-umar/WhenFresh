@@ -158,4 +158,5 @@ class AuthController {
             Response::error(500, $e->getMessage());
         }
     }
+    
 }

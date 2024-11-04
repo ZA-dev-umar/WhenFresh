@@ -1,5 +1,14 @@
-// js/ui.js
 class UI {
+    static showLoading() {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) overlay.classList.remove('hidden');
+    }
+
+    static hideLoading() {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) overlay.classList.add('hidden');
+    }
+
     static showNotification(message, type = 'success') {
         const notification = document.createElement('div');
         notification.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg ${
@@ -17,34 +26,14 @@ class UI {
         });
     }
 
-    static calculateFreshness(prepTime, duration) {
-        const now = new Date();
-        const prepDateTime = new Date();
-        const [hours, minutes] = prepTime.split(':');
-        prepDateTime.setHours(hours, minutes, 0);
-        
-        const endTime = new Date(prepDateTime.getTime() + duration * 60000);
-        
-        if (now < prepDateTime) {
-            return {
-                status: 'Upcoming',
-                countdown: this.formatCountdown(prepDateTime - now)
-            };
-        } else if (now <= endTime) {
-            return {
-                status: 'Fresh',
-                countdown: this.formatCountdown(endTime - now)
-            };
+    static getStatusClass(status) {
+        switch (status) {
+            case 'Fresh':
+                return 'bg-green-100 text-green-800';
+            case 'Upcoming':
+                return 'bg-blue-100 text-blue-800';
+            default:
+                return 'bg-gray-100 text-gray-800';
         }
-        return {
-            status: 'Ready',
-            countdown: null
-        };
-    }
-
-    static formatCountdown(ms) {
-        const minutes = Math.floor(ms / 60000);
-        const seconds = Math.floor((ms % 60000) / 1000);
-        return `${minutes}m ${seconds}s`;
     }
 }
